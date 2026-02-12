@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Souhasi ❤️</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Segoe UI', cursive;
+    overflow:hidden;
+    height:100vh;
+    color:white;
+}
+
+/* 💕 COLLAGE BACKGROUND */
+.collage{
+    position:fixed;
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap:5px;
+    z-index:-2;
+    transition:opacity 1s ease-in-out;
+}
+
+.collage img{
+    width:100%;
+    height:100%;
+    object-fit:cover;      /* 👈 perfect crop */
+    border-radius:12px;
+}
+
+/* Mobile adjustment */
+@media(max-width:768px){
+    .collage{
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+    }
+}
+
+.overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:-1;
+}
+
+/* 💖 Content */
+.container{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+}
+
+h1{
+    font-size:2.2rem;
+    margin-bottom:20px;
+}
+
+button{
+    padding:14px 28px;
+    font-size:18px;
+    border:none;
+    border-radius:30px;
+    margin:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+#yesBtn{
+    background:#ff2e63;
+    color:white;
+    box-shadow:0 0 20px rgba(255,0,100,0.8);
+}
+
+#yesBtn:hover{
+    transform:scale(1.15);
+}
+
+#noBtn{
+    background:white;
+    color:#ff2e63;
+    position:absolute;
+}
+
+#finalMessage{
+    display:none;
+    font-size:2rem;
+    animation:fadeIn 2s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+/* 🎆 Fireworks */
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 💕 COLLAGE -->
+<div class="collage" id="collage"></div>
+
+<div class="overlay"></div>
+<canvas id="fireworks"></canvas>
+
+<div class="container">
+    <h1 id="question">
+        Souhasi 💖<br>
+        Will you be my Valentine?
+    </h1>
+
+    <div id="buttons">
+        <button id="yesBtn">Yes 🥰</button>
+        <button id="noBtn">No 😢</button>
+    </div>
+<div id="finalMessage">
+    You made my world brighter, my heart fuller 💖<br>
+    I choose you. Always. Forever. 💍
+    Fron your Boobie doobie doo 
+</div>
+</div>
+
+<script>
+
+/* 💕 COLLAGE ROTATION */
+const images = [
+    "img/photo1.jpg",
+    "img/photo2.jpg",
+    "img/photo3.jpg",
+    "img/photo4.jpg",
+    "img/photo5.jpg",
+    "img/photo6.jpg",
+    "img/photo7.jpg",
+    "img/photo8.jpg",
+    "img/photo9.jpg",
+    "img/photo10.jpg"
+];
+
+const collage = document.getElementById("collage");
+
+function shuffle(array){
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function generateCollage(){
+    collage.style.opacity = 0;
+
+    setTimeout(()=>{
+        collage.innerHTML = "";
+        const shuffled = shuffle([...images]);
+
+        shuffled.forEach(src=>{
+            const img = document.createElement("img");
+            img.src = src;
+            collage.appendChild(img);
+        });
+
+        collage.style.opacity = 1;
+    },500);
+}
+
+generateCollage();
+setInterval(generateCollage,3000); // 👈 change every 3 sec
+
+
+/* 😂 NO BUTTON */
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const finalMessage = document.getElementById("finalMessage");
+const question = document.getElementById("question");
+
+const noTexts = [
+    "Are you sure? 😭",
+    "Really sure? 🥺",
+    "Think again 💔",
+    "Pleaseee 🥹",
+    "Souhasi plssss ❤️",
+    "This hurts 😢",
+    "Don't do this 😭",
+    "Last chance 😳",
+    "You're breaking my heart 💘",
+    "Okay bye then 💨"
+];
+
+let clickCount = 0;
+
+noBtn.addEventListener("click", () => {
+    clickCount++;
+
+    if(clickCount < noTexts.length){
+        noBtn.innerText = noTexts[clickCount];
+        noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+        noBtn.style.top = Math.random() * (window.innerHeight - 60) + "px";
+    } else {
+        noBtn.style.transition = "all 1s ease";
+        noBtn.style.transform = "translateX(150vw)";
+        setTimeout(() => noBtn.style.display = "none", 1000);
+    }
+});
+
+/* 💍 YES BUTTON */
+yesBtn.addEventListener("click", () => {
+    document.getElementById("buttons").style.display = "none";
+    question.style.display = "none";
+    finalMessage.style.display = "block";
+    startFireworks();
+});
+
+/* 🎆 FIREWORKS */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function createFirework(x,y){
+    for(let i=0;i<120;i++){
+        particles.push({
+            x:x,
+            y:y,
+            speedX:(Math.random()-0.5)*10,
+            speedY:(Math.random()-0.5)*10,
+            life:100
+        });
+    }
+}
+
+function startFireworks(){
+    setInterval(()=>{
+        createFirework(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height/2
+        );
+    },500);
+    animate();
+}
+
+function animate(){
+    ctx.fillStyle="rgba(0,0,0,0.2)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    particles.forEach((p,index)=>{
+        ctx.fillStyle="hsl("+Math.random()*360+",100%,50%)";
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,3,0,Math.PI*2);
+        ctx.fill();
+
+        p.x+=p.speedX;
+        p.y+=p.speedY;
+        p.life--;
+
+        if(p.life<=0){
+            particles.splice(index,1);
+        }
+    });
+
+    requestAnimationFrame(animate);
+}
+
+window.addEventListener("resize",()=>{
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+});
+
+</script>
+
+</body>
+</html>
