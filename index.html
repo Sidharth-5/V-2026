@@ -14,32 +14,31 @@
 
 body{
     font-family:'Segoe UI', cursive;
-    overflow:hidden;
     height:100vh;
+    overflow:hidden;
     color:white;
 }
 
 /* 💕 COLLAGE BACKGROUND */
 .collage{
     position:fixed;
-    width:100%;
-    height:100%;
+    inset:0;
     display:grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap:5px;
-    z-index:-2;
-    transition:opacity 1s ease-in-out;
+    gap:6px;
+    z-index:0;
+    transition:opacity 0.8s ease-in-out;
 }
 
 .collage img{
     width:100%;
     height:100%;
-    object-fit:cover;      /* 👈 perfect crop */
+    object-fit:cover;
     border-radius:12px;
 }
 
-/* Mobile adjustment */
+/* Mobile grid */
 @media(max-width:768px){
     .collage{
         grid-template-columns: repeat(2, 1fr);
@@ -49,14 +48,15 @@ body{
 
 .overlay{
     position:fixed;
-    width:100%;
-    height:100%;
+    inset:0;
     background:rgba(0,0,0,0.5);
-    z-index:-1;
+    z-index:1;
 }
 
 /* 💖 Content */
 .container{
+    position:relative;
+    z-index:2;
     height:100vh;
     display:flex;
     flex-direction:column;
@@ -67,7 +67,7 @@ body{
 }
 
 h1{
-    font-size:2.2rem;
+    font-size:2rem;
     margin-bottom:20px;
 }
 
@@ -99,7 +99,7 @@ button{
 
 #finalMessage{
     display:none;
-    font-size:2rem;
+    font-size:1.8rem;
     animation:fadeIn 2s ease;
 }
 
@@ -111,18 +111,16 @@ button{
 /* 🎆 Fireworks */
 canvas{
     position:fixed;
-    top:0;
-    left:0;
+    inset:0;
     pointer-events:none;
+    z-index:3;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 💕 COLLAGE -->
 <div class="collage" id="collage"></div>
-
 <div class="overlay"></div>
 <canvas id="fireworks"></canvas>
 
@@ -136,16 +134,17 @@ canvas{
         <button id="yesBtn">Yes 🥰</button>
         <button id="noBtn">No 😢</button>
     </div>
-<div id="finalMessage">
-    You made my world brighter, my heart fuller 💖<br>
-    I choose you. Always. Forever. 💍
-    Fron your Boobie doobie doo 
-</div>
+
+    <div id="finalMessage">
+        You made my world brighter, my heart fuller 💖<br>
+        I choose you. Always. Forever. 💍<br>
+        From your Boobie Doobie Doo 🥰
+    </div>
 </div>
 
 <script>
 
-/* 💕 COLLAGE ROTATION */
+/* 💕 IMAGE LIST */
 const images = [
     "img/photo1.jpg",
     "img/photo2.jpg",
@@ -159,12 +158,20 @@ const images = [
     "img/photo10.jpg"
 ];
 
+/* Preload images */
+images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+});
+
 const collage = document.getElementById("collage");
 
+/* Shuffle function */
 function shuffle(array){
     return array.sort(() => Math.random() - 0.5);
 }
 
+/* Generate collage */
 function generateCollage(){
     collage.style.opacity = 0;
 
@@ -175,15 +182,16 @@ function generateCollage(){
         shuffled.forEach(src=>{
             const img = document.createElement("img");
             img.src = src;
+            img.loading = "lazy";
             collage.appendChild(img);
         });
 
         collage.style.opacity = 1;
-    },500);
+    },400);
 }
 
 generateCollage();
-setInterval(generateCollage,3000); // 👈 change every 3 sec
+setInterval(generateCollage, 4000); // safer for mobile
 
 
 /* 😂 NO BUTTON */
@@ -233,19 +241,23 @@ yesBtn.addEventListener("click", () => {
 const canvas = document.getElementById("fireworks");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 let particles = [];
 
 function createFirework(x,y){
-    for(let i=0;i<120;i++){
+    for(let i=0;i<100;i++){
         particles.push({
             x:x,
             y:y,
-            speedX:(Math.random()-0.5)*10,
-            speedY:(Math.random()-0.5)*10,
-            life:100
+            speedX:(Math.random()-0.5)*8,
+            speedY:(Math.random()-0.5)*8,
+            life:80
         });
     }
 }
@@ -256,7 +268,7 @@ function startFireworks(){
             Math.random()*canvas.width,
             Math.random()*canvas.height/2
         );
-    },500);
+    },600);
     animate();
 }
 
@@ -281,11 +293,6 @@ function animate(){
 
     requestAnimationFrame(animate);
 }
-
-window.addEventListener("resize",()=>{
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
-});
 
 </script>
 
